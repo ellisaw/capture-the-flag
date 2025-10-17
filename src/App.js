@@ -56,10 +56,12 @@ function App() {
       })
     }
 
+    // once last nested node is reached, store url characters
     tagQuery += " > " + innermostNodeData.tag
     let innermostNodes = html.querySelectorAll(tagQuery)
     let urlStr = ""
     innermostNodes.forEach((node) => {
+      // only store if node has correct class name
       if(node.classList.contains(innermostNodeData.className)) {
         let val = node.attributes.value.nodeValue;
         urlStr += val
