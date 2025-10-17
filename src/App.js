@@ -1,9 +1,9 @@
-import logo from './logo.svg';
 import { useState, useEffect } from 'react';
 import './App.css';
-import {sourceUrl, parentElementsData, childElementData} from './data/data.js'
+import {sourceUrl, nodesData, innermostNodeData} from './data/data.js'
 
 function App() {
+  let [html, setHtml] = useState(); // Source html
   let [decodedUrl, setDecodedUrl] = useState(''); // Destination url
   
   useEffect(() => {
@@ -12,16 +12,16 @@ function App() {
     .then(htmlString => {
       if (htmlString) {
         console.log("HTML content retrieved successfully:");
-        // convert html string into html
+        // convert string into html
         const parser = new DOMParser();
-        const html = parser.parseFromString(htmlString, 'text/xml');
-        decodeUrl(html)
+        setHtml(parser.parseFromString(htmlString, 'text/xml'));
       } else {
         console.log("Failed to retrieve HTML content.");
       }
     });
   },[]);
 
+  // get source html (string) from url
   const getHtmlFromUrl = async (url) => {
     try {
       const response = await fetch(url);
@@ -36,49 +36,59 @@ function App() {
     }
   }
 
-  const decodeUrl = (html) => {
-    for (let data of parentElementsData) {
-      // node list of elements with specified tag
-      const elements = html.querySelectorAll(data.tag)
-      // regex to match attribute against
+  const decodeUrl = () => {
+    let tagQuery = ""
+
+    // filter nodes data for nodes that fit the attribute criteria
+    for (let data of nodesData) {
+      // build query as nested elements get deeper
+      // e.g. parent > child > grandchild
+      tagQuery = tagQuery ? `${tagQuery} > ${data.tag}` : data.tag
+      // use query to retrieve node list for tag
+      const nodeList = html.querySelectorAll(tagQuery)
       const regex = new RegExp(data.regex)
-      // for each element, check if the specified attribute matches the regular expression
-      elements.forEach((element) => {
+      nodeList.forEach((node) => {
         // if attribute value doesn't match the regexp, remove it from the node list
-        if (!regex.test(element.attributes[data.attribute].value)) {
-          const parent = element.parentNode;
-          parent.removeChild(element)
+        if (!regex.test(node.attributes[data.attribute].value)) {
+          const parent = node.parentNode;
+          parent.removeChild(node)
         }
       })
     }
 
-    let bNodes = html.querySelectorAll(childElementData.tag)
-    let str = ""
-    bNodes.forEach((node) => {
-      if(node.classList.contains(childElementData.className)) {
+    tagQuery += " > " + innermostNodeData.tag
+    let innermostNodes = html.querySelectorAll(tagQuery)
+    let urlStr = ""
+    innermostNodes.forEach((node) => {
+      if(node.classList.contains(innermostNodeData.className)) {
         let val = node.attributes.value.nodeValue;
-        str += val
+        urlStr += val
       }
     })
-    setDecodedUrl(str)
+    setDecodedUrl(urlStr)
   }
 
 
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+          <a
+            className="App-link"
+            href={decodedUrl}
+            target="_blank"
+          >
+            {decodedUrl}
+          </a>
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          className="App-decode-btn"
+          onClick={() => {
+            if(!decodedUrl) decodeUrl()
+          }}
         >
-          Learn React
-        </a>
+          Decode URL
+        </button>
       </header>
     </div>
   );
