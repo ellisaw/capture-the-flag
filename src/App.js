@@ -83,6 +83,7 @@ function App() {
         </p>
         <button
           className="App-decode-btn"
+          disabled={html === undefined}
           onClick={() => {
             if(!decodedUrl) decodeUrl()
           }}
