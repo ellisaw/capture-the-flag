@@ -1,3 +1,12 @@
+:root {
+  --react-blue: #61dafb;
+  --react-grey: #282c34; 
+  --disabled-btn-bg: #77787C;
+  --disabled-btn-fg: #58595C;
+  --transition-time: 0.3s;
+  --font-family: "Gill Sans", sans-serif;
+}
+
 .App {
   text-align: center;
 }
@@ -25,11 +34,31 @@
 }
 
 .App-link {
-  color: #61dafb;
+  color: var(--react-blue);
 }
 
 .App-decode-btn {
-  padding: 10px 20px;
+  padding: 15px 25px;
   font-size: 20px;
   text-transform: uppercase;
+  background-color: transparent;
+  color: var(--react-blue);
+  border-style: none;
+  border: 3px solid var(--react-blue);
+  border-radius: 10px;
+  border-color: var(--react-blue);
+  transition: var(--transition-time);
+  font-weight: 600;
+}
+
+.App-decode-btn:disabled {
+  background-color: var(--disabled-btn-bg);
+  color: var(--disabled-btn-fg);
+  border: var(--disabled-btn-fg);
+}
+
+.App-decode-btn:enabled:hover {
+  background-color: var(--react-blue);
+  color: var(--react-grey);
+  transition: var(--transition-time);
 }
